@@ -1,11 +1,11 @@
+#define GLM_FORCE_RADIANS
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLWidget>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QKeyEvent>
-#include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
-#define GLM_FORCE_RADIANS
+#include "glm/gtc/matrix_transform.hpp"
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 {
@@ -17,29 +17,30 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
   protected:
     // initializeGL - Aqui incluim les inicialitzacions del contexte grafic.
-    virtual void initializeGL ();
-
+    virtual void initializeGL ( );
     // paintGL - Mètode cridat cada cop que cal refrescar la finestra.
     // Tot el que es dibuixa es dibuixa aqui.
-    virtual void paintGL ();
-
-    // resize - Es cridat quan canvia la mida del widget
+    virtual void paintGL ( );
+    // resizeGL - És cridat quan canvia la mida del widget
     virtual void resizeGL (int width, int height);
-
-    virtual void keyPressEvent(QKeyEvent *e);
+    // keyPressEvent - Es cridat quan es prem una tecla
+    virtual void keyPressEvent (QKeyEvent *event);
 
   private:
     void createBuffers ();
     void carregaShaders ();
     void modelTransform ();
-    float tx,ty,tz;
-    // attribute locations
-    GLuint vertexLoc;
-    GLuint colorLoc;
-    GLuint transLoc;
+    void projectTransform ();
 
+    // attribute locations
+    GLuint vertexLoc, colorLoc;
+    // uniform locations
+    GLuint transLoc,projLoc;
+    // VAO i VBO names
+    GLuint VAO_Casa, VBO_CasaPos, VBO_CasaCol;
     // Program
     QOpenGLShaderProgram *program;
-
-    GLuint VAO, VBO, VBO2;
+    // Internal vars
+    float scale;
+    glm::vec3 pos;
 };

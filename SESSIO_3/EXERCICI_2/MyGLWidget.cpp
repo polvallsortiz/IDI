@@ -116,5 +116,11 @@ void MyGLWidget::carregaShaders()
   // Obtenim identificador per a l'atribut “vertex” del vertex shader
   vertexLoc = glGetAttribLocation (program->programId(), "vertex");
   colorLoc = glGetAttribLocation (program->programId(), "color");
-  varLoc = glGetUniformLocation (program->programId(), "val");
+  transLoc = glGetUniformLocation (program->programId(), "TG");
+}
+
+void MyGLWidget::modelTransform (){
+  glm::mat4 TG (1.0);
+  TG = glm::translate (TG, glm::vec3 (-0.5,0.5,0.0));
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
