@@ -20,7 +20,7 @@ void MyGLWidget::initializeGL ()
   initializeOpenGLFunctions();
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
   glEnable(GL_DEPTH_TEST);
-  up = glm::vec3(0,1,0);
+  angle = (float)M_PI/2.0f;
     carregaShaders();
     createBuffers();
   viewTransform();
@@ -54,12 +54,9 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 {
   makeCurrent();
   switch (event->key()) {
-    case Qt::Key_R: { // escalar a més gran
-      rotar_esquerra();
-      break;
-    }
-    case Qt::Key_D: { // escalar a més petit
-      rotar_dreta();
+    case Qt::Key_R: { // Rotar
+        angle += (float)M_PI/4.0f;
+        modelTransform();
       break;
     }
     default: event->ignore(); break;
@@ -126,7 +123,7 @@ void MyGLWidget::carregaShaders()
 void MyGLWidget::viewTransform () {
 // glm::lookAt (OBS, VRP, UP)
     glm::mat4 View = glm::lookAt (glm::vec3(0,0,1),
-                                  glm::vec3(0,0,0), up);
+                                  glm::vec3(0,0,0), glm::vec3(0,1,0));
     glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -136,30 +133,12 @@ void MyGLWidget::modelTransform ()
     glm::mat4 transform (1.0f);
     transform = glm::scale(transform, glm::vec3(scale));
     glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+    transform = glm::rotate(transform,angle,glm::vec3(0,1,0));
+    glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
 void MyGLWidget::projectTransform() {
     //glm::perspective (FOV en radians, ra window, znear, zfar)
     glm::mat4 Proj = glm::perspective((float)M_PI/2.0f,1.0f,0.4f,3.0f);
     glUniformMatrix4fv(projLoc,1,GL_FALSE,&Proj[0][0]);
-}
-
-
-
-
-void MyGLWidget::rotar_esquerra() {
-    if(up == glm::vec3(1,0,0)) up = glm::vec3(0,-1,0);
-    else if(up == glm::vec3(0,-1,0)) up = glm::vec3(-1,0,0);
-    else if(up == glm::vec3(-1,0,0)) up = glm::vec3(0,1,0);
-    else up = glm::vec3(1,0,0);
-    viewTransform();
-}
-
-
-void MyGLWidget::rotar_dreta() {
-    if(up == glm::vec3(1,0,0)) up = glm::vec3(0,1,0);
-    else if(up == glm::vec3(0,1,0)) up = glm::vec3(-1,0,0);
-    else if(up == glm::vec3(-1,0,0)) up = glm::vec3(0,-1,0);
-    else up = glm::vec3(1,0,0);
-    viewTransform();
 }

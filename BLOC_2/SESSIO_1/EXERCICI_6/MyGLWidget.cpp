@@ -20,7 +20,7 @@ void MyGLWidget::initializeGL ()
   initializeOpenGLFunctions();
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
   glEnable(GL_DEPTH_TEST);
-  up = glm::vec3(0,1,0);
+  angle = (float)M_PI/2.0f;
     carregaShaders();
     createBuffers();
   viewTransform();
@@ -43,6 +43,17 @@ void MyGLWidget::paintGL ()
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size()*3);
 
   glBindVertexArray (0);
+
+
+    // Activem el VAO per a pintar la caseta
+    glBindVertexArray (VAO_Terra);
+
+    // pintemLS
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glBindVertexArray (0);
+
+
 }
 
 void MyGLWidget::resizeGL (int w, int h)
@@ -54,12 +65,9 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 {
   makeCurrent();
   switch (event->key()) {
-    case Qt::Key_R: { // escalar a més gran
-      rotar_esquerra();
-      break;
-    }
-    case Qt::Key_D: { // escalar a més petit
-      rotar_dreta();
+    case Qt::Key_R: { // Rotar
+        angle += (float)M_PI/4.0f;
+        modelTransform();
       break;
     }
     default: event->ignore(); break;
@@ -69,7 +77,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 
 void MyGLWidget::createBuffers ()
 {
-    m.load("../../../models/HomerProves.obj");
+    m.load("../../../models/cow.obj");
 
     // Creació del Vertex Array Object per pintar
     glGenVertexArrays(1, &VAO_Homer);
@@ -91,6 +99,40 @@ void MyGLWidget::createBuffers ()
     glEnableVertexAttribArray(colorLoc);
 
     glBindVertexArray (0);
+
+    glGenVertexArrays(1, &VAO_Terra);
+    glBindVertexArray(VAO_Terra);
+
+    glm::vec3 vertices[6];
+    vertices[0] = glm::vec3(-1.0,-1.0,-1.0);
+    vertices[1] = glm::vec3(-1.0,-1.0,1.0);
+    vertices[2] = glm::vec3(1.0,-1.0,-1.0);
+    vertices[3] = glm::vec3(1.0,-1.0,-1.0);
+    vertices[4] = glm::vec3(-1.0,-1.0,1.0);
+    vertices[5] = glm::vec3(1.0,-1.0,1.0);
+
+    glGenBuffers(1, &VBO_TerraPosicio);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_TerraPosicio);
+    glBufferData(GL_ARRAY_BUFFER, 6, vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexLoc);
+
+    glm::vec3 colors[6];
+    colors[0] = glm::vec3(1.0,1.0,1.0);
+    colors[1] = glm::vec3(1.0,1.0,1.0);
+    colors[2] = glm::vec3(1.0,1.0,1.0);
+    colors[3] = glm::vec3(1.0,1.0,1.0);
+    colors[4] = glm::vec3(1.0,1.0,1.0);
+    colors[5] = glm::vec3(1.0,1.0,1.0);
+
+
+    glGenBuffers(1, &VBO_TerraColor);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_TerraColor);
+    glBufferData(GL_ARRAY_BUFFER, 6, colors, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
 }
 
 void MyGLWidget::carregaShaders()
@@ -126,7 +168,7 @@ void MyGLWidget::carregaShaders()
 void MyGLWidget::viewTransform () {
 // glm::lookAt (OBS, VRP, UP)
     glm::mat4 View = glm::lookAt (glm::vec3(0,0,1),
-                                  glm::vec3(0,0,0), up);
+                                  glm::vec3(0,0,0), glm::vec3(0,1,0));
     glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -136,30 +178,12 @@ void MyGLWidget::modelTransform ()
     glm::mat4 transform (1.0f);
     transform = glm::scale(transform, glm::vec3(scale));
     glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+    transform = glm::rotate(transform,angle,glm::vec3(1,0,0));
+    glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
 void MyGLWidget::projectTransform() {
     //glm::perspective (FOV en radians, ra window, znear, zfar)
     glm::mat4 Proj = glm::perspective((float)M_PI/2.0f,1.0f,0.4f,3.0f);
     glUniformMatrix4fv(projLoc,1,GL_FALSE,&Proj[0][0]);
-}
-
-
-
-
-void MyGLWidget::rotar_esquerra() {
-    if(up == glm::vec3(1,0,0)) up = glm::vec3(0,-1,0);
-    else if(up == glm::vec3(0,-1,0)) up = glm::vec3(-1,0,0);
-    else if(up == glm::vec3(-1,0,0)) up = glm::vec3(0,1,0);
-    else up = glm::vec3(1,0,0);
-    viewTransform();
-}
-
-
-void MyGLWidget::rotar_dreta() {
-    if(up == glm::vec3(1,0,0)) up = glm::vec3(0,1,0);
-    else if(up == glm::vec3(0,1,0)) up = glm::vec3(-1,0,0);
-    else if(up == glm::vec3(-1,0,0)) up = glm::vec3(0,-1,0);
-    else up = glm::vec3(1,0,0);
-    viewTransform();
 }
