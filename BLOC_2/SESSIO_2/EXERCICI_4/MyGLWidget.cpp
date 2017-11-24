@@ -1,11 +1,11 @@
 #include "MyGLWidget.h"
 
 #include <iostream>
+using namespace std;
 
 MyGLWidget::MyGLWidget (QWidget* parent) : QOpenGLWidget(parent)
 {
   setFocusPolicy(Qt::StrongFocus);  // per rebre events de teclat
-  scale = 0.5f;
 }
 
 MyGLWidget::~MyGLWidget ()
@@ -21,12 +21,14 @@ void MyGLWidget::initializeGL ()
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
   glEnable(GL_DEPTH_TEST);
   angle = (float)M_PI/2.0f;
+  raw = 1.0;
+  FOV = (float)M_PI/2.0f;
+  FOV_AUX = FOV;
   carregaShaders();
   createBuffers();
   viewTransform();
-  modelTransform();
   projectTransform();
-
+  modelTransformPat();
 }
 
 void MyGLWidget::paintGL ()
@@ -44,21 +46,22 @@ void MyGLWidget::paintGL ()
 
   glBindVertexArray (0);
 
+  glBindVertexArray (VAO_Terra);
 
-    // Activem el VAO per a pintar la caseta
-    glBindVertexArray (VAO_Terra);
+  transformacionsTerra();
 
-    // pintemLS
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
-    glBindVertexArray (0);
-
-
+  glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void MyGLWidget::resizeGL (int w, int h)
 {
   glViewport(0, 0, w, h);
+  raw = float(w)/float(h);
+  FOV_AUX = FOV;
+  if(raw < 1) {
+      FOV_AUX = 2 * atan(tan(FOV/2)/raw);
+  }
+  projectTransform();
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent* event)
@@ -67,7 +70,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
   switch (event->key()) {
     case Qt::Key_R: { // Rotar
         angle += (float)M_PI/4.0f;
-        modelTransform();
+        //modelTransform();
       break;
     }
     default: event->ignore(); break;
@@ -77,7 +80,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 
 void MyGLWidget::createBuffers ()
 {
-    m.load("../../../models/HomerProves.obj");
+    m.load("../../../models/Patricio.obj");
 
     // Creació del Vertex Array Object per pintar
     glGenVertexArrays(1, &VAO_Homer);
@@ -100,39 +103,45 @@ void MyGLWidget::createBuffers ()
 
     glBindVertexArray (0);
 
+    //Creació del VAO per pintar Terra
     glGenVertexArrays(1, &VAO_Terra);
     glBindVertexArray(VAO_Terra);
 
-    glm::vec3 vertices[6];
-    vertices[0] = glm::vec3(-1.0,-1.0,-1.0);
-    vertices[1] = glm::vec3(-1.0,-1.0,1.0);
-    vertices[2] = glm::vec3(1.0,-1.0,-1.0);
-    vertices[3] = glm::vec3(1.0,-1.0,-1.0);
-    vertices[4] = glm::vec3(-1.0,-1.0,1.0);
-    vertices[5] = glm::vec3(1.0,-1.0,1.0);
+    glm::vec3 Vertices[6] = {
+            glm::vec3(-1.0, -1.0, 1.0),
+            glm::vec3(-1.0, -1.0, -1.0),
+            glm::vec3(1.0,  -1.0, -1.0),
+            glm::vec3(-1.0, -1.0, 1.0),
+            glm::vec3( 1.0, -1.0, 1.0),
+            glm::vec3( 1.0, -1.0, -1.0)
+    };
 
     glGenBuffers(1, &VBO_TerraPosicio);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_TerraPosicio);
-    glBufferData(GL_ARRAY_BUFFER, 6, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
-    glm::vec3 colors[6];
-    colors[0] = glm::vec3(1.0,1.0,1.0);
-    colors[1] = glm::vec3(1.0,1.0,1.0);
-    colors[2] = glm::vec3(1.0,1.0,1.0);
-    colors[3] = glm::vec3(1.0,1.0,1.0);
-    colors[4] = glm::vec3(1.0,1.0,1.0);
-    colors[5] = glm::vec3(1.0,1.0,1.0);
-
+    glm::vec3 Colors[6] = {
+            glm::vec3(1.0, 0.0, 1.0),
+            glm::vec3(1.0, 0.0, 1.0),
+            glm::vec3(1.0, 0.0, 1.0),
+            glm::vec3(1.0, 0.0, 1.0),
+            glm::vec3(1.0, 0.0, 1.0),
+            glm::vec3(1.0, 0.0, 1.0)
+    };
 
     glGenBuffers(1, &VBO_TerraColor);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_TerraColor);
-    glBufferData(GL_ARRAY_BUFFER, 6, colors, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Colors), Colors, GL_STATIC_DRAW);
 
     glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(colorLoc);
+
+    glBindVertexArray (0);
+
+
 }
 
 void MyGLWidget::carregaShaders()
@@ -154,10 +163,9 @@ void MyGLWidget::carregaShaders()
   program->bind();
 
   // Obtenim identificador per a l'atribut “vertex” del vertex shader
-  vertexLoc = glGetAttribLocation(program->programId(), "vertex");
+  vertexLoc = glGetAttribLocation (program->programId(), "vertex");
   // Obtenim identificador per a l'atribut “color” del vertex shader
-  colorLoc = glGetAttribLocation(program->programId(), "color");
-
+  colorLoc = glGetAttribLocation (program->programId(), "color");
   // Uniform locations
   transLoc = glGetUniformLocation(program->programId(), "TG");
   projLoc = glGetUniformLocation(program->programId(), "proj");
@@ -168,7 +176,7 @@ void MyGLWidget::carregaShaders()
 
 void MyGLWidget::viewTransform () {
 // glm::lookAt (OBS, VRP, UP)
-    glm::mat4 View = glm::lookAt (glm::vec3(0,0,1),
+    glm::mat4 View = glm::lookAt (glm::vec3(0,0,2),
                                   glm::vec3(0,0,0), glm::vec3(0,1,0));
     glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
@@ -177,14 +185,61 @@ void MyGLWidget::modelTransform ()
 {
     // Matriu de transformació de model
     glm::mat4 transform (1.0f);
-    transform = glm::scale(transform, glm::vec3(scale));
-    glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
-    transform = glm::rotate(transform,angle,glm::vec3(1,0,0));
+    transform = glm::rotate(transform,angle,glm::vec3(0,1,0));
     glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
 void MyGLWidget::projectTransform() {
     //glm::perspective (FOV en radians, ra window, znear, zfar)
-    glm::mat4 Proj = glm::perspective((float)M_PI/2.0f,1.0f,0.8f,3.0f);
+    glm::mat4 Proj = glm::perspective(FOV_AUX,raw,0.4f,3.0f);
     glUniformMatrix4fv(projLoc,1,GL_FALSE,&Proj[0][0]);
+}
+
+void MyGLWidget::transformacionsTerra() {
+    glm::mat4 transform (1.0f);
+    glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+}
+
+void MyGLWidget::iniEsfera() {
+}
+
+void MyGLWidget::iniCamera() {
+
+}
+
+void MyGLWidget::modelTransformPat() {
+    caixa_minim[0] = (float)m.vertices()[0];
+    caixa_minim[1] = (float)m.vertices()[1];
+    caixa_minim[2] = (float)m.vertices()[2];
+
+    caixa_max[0] = (float)m.vertices()[0];
+    caixa_max[1] = (float)m.vertices()[1];
+    caixa_max[2] = (float)m.vertices()[2];
+
+    for(unsigned int i = 0; i < m.vertices().size(); i += 3) {
+        if((float)m.vertices()[i] < caixa_minim[0]) caixa_minim[0] = (float)m.vertices()[i];
+        if((float)m.vertices()[i+1] < caixa_minim[1]) caixa_minim[1] = (float)m.vertices()[i+1];
+        if((float)m.vertices()[i+2] < caixa_minim[2]) caixa_minim[2] = (float)m.vertices()[i+2];
+        if((float)m.vertices()[i] > caixa_max[0]) caixa_max[0] = (float)m.vertices()[i];
+        if((float)m.vertices()[i+1] > caixa_max[1]) caixa_max[1] = (float)m.vertices()[i+1];
+        if((float)m.vertices()[i+2] > caixa_max[2]) caixa_max[2] = (float)m.vertices()[i+2];
+    }
+    caixa_centre[0] = (caixa_max[0] - caixa_minim[0]) / 2;
+    caixa_centre[1] = (caixa_max[1] - caixa_minim[1]) / 2;
+    caixa_centre[2] = (caixa_max[2] - caixa_minim[2]) / 2;
+
+    cout << caixa_minim[0] << " " << caixa_minim[1] << " " << caixa_minim[2] << endl;
+    cout << caixa_max[0] << " " << caixa_max[1] << " " << caixa_max[2] << endl;
+    cout << caixa_centre[0] << " " << caixa_centre[1] << " " << caixa_centre[2] << endl;
+
+    glm::vec3 translacio_centre;
+    translacio_centre[0] = -caixa_centre[0];
+    translacio_centre[1] = -caixa_centre[1];
+    translacio_centre[2] = -caixa_centre[2];
+
+    cout << "TRANSLACIÓ a : " << endl << translacio_centre[0] << " " << translacio_centre[1] << " " << translacio_centre[2] << endl;
+
+         glm::mat4 translacio(1.0);
+    translacio = glm::translate(translacio,translacio_centre);
+    glUniformMatrix4fv(transLoc, 1, GL_FALSE, &translacio[0][0]);
 }
