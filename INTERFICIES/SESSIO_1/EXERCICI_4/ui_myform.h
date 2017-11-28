@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'myform.ui'
 **
-** Created by: Qt User Interface Compiler version 4.8.6
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,18 +10,18 @@
 #define UI_MYFORM_H
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QTextEdit>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QTextEdit>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
 
@@ -50,20 +50,20 @@ public:
     void setupUi(QWidget *MyForm)
     {
         if (MyForm->objectName().isEmpty())
-            MyForm->setObjectName(QString::fromUtf8("MyForm"));
+            MyForm->setObjectName(QStringLiteral("MyForm"));
         MyForm->resize(514, 656);
         verticalLayout_5 = new QVBoxLayout(MyForm);
-        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
         verticalLayout_4 = new QVBoxLayout();
-        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
         verticalLayout_3 = new QVBoxLayout();
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
         verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         label = new QLabel(MyForm);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName(QStringLiteral("label"));
 
         horizontalLayout->addWidget(label);
 
@@ -75,7 +75,7 @@ public:
         verticalLayout->addLayout(horizontalLayout);
 
         lineEdit = new QLineEdit(MyForm);
-        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+        lineEdit->setObjectName(QStringLiteral("lineEdit"));
 
         verticalLayout->addWidget(lineEdit);
 
@@ -83,11 +83,11 @@ public:
         verticalLayout_3->addLayout(verticalLayout);
 
         verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
         horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         label_2 = new QLabel(MyForm);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setObjectName(QStringLiteral("label_2"));
 
         horizontalLayout_2->addWidget(label_2);
 
@@ -99,7 +99,7 @@ public:
         verticalLayout_2->addLayout(horizontalLayout_2);
 
         textEdit_2 = new QTextEdit(MyForm);
-        textEdit_2->setObjectName(QString::fromUtf8("textEdit_2"));
+        textEdit_2->setObjectName(QStringLiteral("textEdit_2"));
 
         verticalLayout_2->addWidget(textEdit_2);
 
@@ -114,10 +114,10 @@ public:
         verticalLayout_4->addItem(verticalSpacer);
 
         horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
         pushButton = new QPushButton(MyForm);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setStyleSheet(QString::fromUtf8("background-color:#09f"));
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setStyleSheet(QStringLiteral("background-color:#09f"));
 
         horizontalLayout_3->addWidget(pushButton);
 
@@ -126,8 +126,8 @@ public:
         horizontalLayout_3->addItem(horizontalSpacer_3);
 
         pushButton_2 = new QPushButton(MyForm);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setStyleSheet(QString::fromUtf8("background-color:#f02"));
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+        pushButton_2->setStyleSheet(QStringLiteral("background-color:#f02"));
 
         horizontalLayout_3->addWidget(pushButton_2);
 
@@ -148,11 +148,11 @@ public:
 
     void retranslateUi(QWidget *MyForm)
     {
-        MyForm->setWindowTitle(QApplication::translate("MyForm", "Form", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MyForm", "Edita un text:", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("MyForm", "Replica text:", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("MyForm", "Neteja", 0, QApplication::UnicodeUTF8));
-        pushButton_2->setText(QApplication::translate("MyForm", "Tancar", 0, QApplication::UnicodeUTF8));
+        MyForm->setWindowTitle(QApplication::translate("MyForm", "Form", Q_NULLPTR));
+        label->setText(QApplication::translate("MyForm", "Edita un text:", Q_NULLPTR));
+        label_2->setText(QApplication::translate("MyForm", "Replica text:", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("MyForm", "Neteja", Q_NULLPTR));
+        pushButton_2->setText(QApplication::translate("MyForm", "Tancar", Q_NULLPTR));
     } // retranslateUi
 
 };
