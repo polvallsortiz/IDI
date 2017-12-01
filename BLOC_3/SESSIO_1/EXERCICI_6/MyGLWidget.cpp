@@ -25,6 +25,7 @@ void MyGLWidget::initializeGL ()
 
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
   glEnable(GL_DEPTH_TEST);
+  posFocus = glm::vec3(1,1,1);
   carregaShaders();
   createBuffers();
   lightUniforms();
@@ -297,8 +298,7 @@ void MyGLWidget::viewTransform ()
   View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
 
-  posFocus = glm::vec3(1,0,0);
-  posFocusSCO = glm::vec4(posFocus,1.0)*View;
+  posFocusSCO = View*glm::vec4(posFocus,1.0);
 
   glUniform4fv(posFocusSCOLoc, 1, &posFocusSCO[0]);
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
@@ -346,6 +346,16 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_O: { // canvia òptica entre perspectiva i axonomètrica
       perspectiva = !perspectiva;
       projectTransform ();
+      break;
+    }
+    case Qt::Key_K: { //MOU FOCUS -x
+      posFocus.x -= 0.1;
+      viewTransform();
+      break;
+    }
+    case Qt::Key_L: {  //MOU FOCUS +x
+      posFocus.x += 0.1;
+      viewTransform();
       break;
     }
     default: event->ignore(); break;
