@@ -8,62 +8,40 @@ in vec3 matdiff;
 in vec3 matspec;
 in float matshin;
 
+out vec3 matamb2;
+out vec3 matdiff2;
+out vec3 matspec2;
+out float matshin2;
+
 uniform mat4 proj;
 uniform mat4 view;
 uniform mat4 TG;
-uniform vec3 colFocus;
-uniform vec3 llumAmbient;
+
 uniform vec4 posFocusSCO;
+
+out vec3 normalSCO;
+out vec4 vertexSCO;
+
 
 // Valors per als components que necessitem dels focus de llum
 //vec3 colFocus = vec3(0.8, 0.8, 0.8);
 //vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
 //vec3 posFocus = vec3(1, 0, 0);  // en SCA
 
-out vec3 fcolor;
-
-vec3 Lambert (vec3 NormSCO, vec3 L) 
-{
-    // S'assumeix que els vectors que es reben com a paràmetres estan normalitzats
-
-    // Inicialitzem color a component ambient
-    vec3 colRes = llumAmbient * matamb;
-
-    // Afegim component difusa, si n'hi ha
-    if (dot (L, NormSCO) > 0)
-      colRes = colRes + colFocus * matdiff * dot (L, NormSCO);
-    return (colRes);
-}
-
-vec3 Phong (vec3 NormSCO, vec3 L, vec4 vertSCO) 
-{
-    // Els vectors estan normalitzats
-
-    // Inicialitzem color a Lambert
-    vec3 colRes = Lambert (NormSCO, L);
-
-    // Calculem R i V
-    if (dot(NormSCO,L) < 0)
-      return colRes;  // no hi ha component especular
-
-    vec3 R = reflect(-L, NormSCO); // equival a: normalize (2.0*dot(NormSCO,L)*NormSCO - L);
-    vec3 V = normalize(-vertSCO.xyz);
-
-    if ((dot(R, V) < 0) || (matshin == 0))
-      return colRes;  // no hi ha component especular
-    
-    // Afegim la component especular
-    float shine = pow(max(0.0, dot(R, V)), matshin);
-    return (colRes + matspec * colFocus * shine); 
-}
 
 void main()
 {
     //vec4 posFocusSCO = vec4(posFocus,1.0)*view;
     mat3 NormalMatrix = inverse(transpose(mat3(view*TG)));
     vec4 vertexSCO = (view * TG * vec4(vertex,1.0));
-    vec3 L = normalize(posFocusSCO.xyz - vertexSCO.xyz);
+    //vec3 L = normalize(posFocusSCO.xyz - vertexSCO.xyz);
     vec3 normalSCO = normalize(NormalMatrix * normal);
-    fcolor = Phong(normalSCO,L,vertexSCO);
+    //fcolor = Phong(normalSCO,L,vertexSCO);
     gl_Position = proj * view * TG * vec4 (vertex, 1.0);
+    //PAS A FRAGMENT SHADER
+    matamb2 = matamb;
+    matdiff2 = matdiff;
+    matspec2 = matspec;
+    matshin2 = matshin;
+
 }
