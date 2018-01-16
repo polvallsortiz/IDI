@@ -13,6 +13,7 @@ out vec3 matdiff2;
 out vec3 matspec2;
 out float matshin2;
 
+
 uniform mat4 proj;
 uniform mat4 view;
 uniform mat4 TG;
@@ -43,5 +44,4 @@ void main()
     matdiff2 = matdiff;
     matspec2 = matspec;
     matshin2 = matshin;
-
 }

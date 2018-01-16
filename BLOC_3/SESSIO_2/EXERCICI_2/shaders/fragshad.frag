@@ -52,6 +52,7 @@ vec3 Phong (vec3 NormSCO, vec3 L, vec4 vertSCO)
 void main()
 {
     vec3 L = normalize(posFocusSCO.xyz - vertexSCO.xyz);
+
     vec3 fcolor = Phong(normalize(normalSCO),L,vertexSCO);
 	FragColor = vec4(fcolor,1);
 }

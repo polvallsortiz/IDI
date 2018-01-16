@@ -9,7 +9,7 @@ MyGLWidget::MyGLWidget (QWidget* parent) : QOpenGLWidget(parent)
   angleY = 0.0;
   perspectiva = true;
   DoingInteractive = NONE;
-  radiEsc = sqrt(3);
+  radiEsc = sqrt(5);
 }
 
 MyGLWidget::~MyGLWidget ()
@@ -23,14 +23,10 @@ void MyGLWidget::initializeGL ()
   // Cal inicialitzar l'ús de les funcions d'OpenGL
   initializeOpenGLFunctions();  
 
-  glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
-  glEnable(GL_DEPTH_TEST);
-  posFocus = glm::vec3(0,0,0); //SCO
-  posFocusSCO = glm::vec4(posFocus,1.0);
-  glUniform4fv(posFocusSCOLoc, 1, &posFocusSCO[0]);
-  carregaShaders();
-  createBuffers();
-  lightUniforms();
+  glClearColor (0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
+  glEnable (GL_DEPTH_TEST);
+  carregaShaders ();
+  createBuffers ();
   projectTransform ();
   viewTransform ();
 }
@@ -67,7 +63,7 @@ void MyGLWidget::resizeGL (int w, int h)
 void MyGLWidget::createBuffers ()
 {
   // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
-  patr.load("/home/polvallsortiz/IDI/models/Patricio.obj");
+  patr.load("./models/Patricio.obj");
 
   // Calculem la capsa contenidora del model
   calculaCapsaModel ();
@@ -130,18 +126,18 @@ void MyGLWidget::createBuffers ()
   // Dades del terra
   // VBO amb la posició dels vèrtexs
   glm::vec3 posterra[12] = {
-	glm::vec3(-1.0, -1.0, 1.0),
-	glm::vec3(1.0, -1.0, 1.0),
-	glm::vec3(-1.0, -1.0, -1.0),
-	glm::vec3(-1.0, -1.0, -1.0),
-	glm::vec3(1.0, -1.0, 1.0),
-	glm::vec3(1.0, -1.0, -1.0),
-	glm::vec3(-1.0, -1.0, -1.0),
-	glm::vec3(1.0, -1.0, -1.0),
-	glm::vec3(-1.0, 1.0, -1.0),
-	glm::vec3(-1.0, 1.0, -1.0),
-	glm::vec3(1.0, -1.0, -1.0),
-	glm::vec3(1.0, 1.0, -1.0)
+	glm::vec3(-2.0, -1.0, 2.0),
+	glm::vec3(2.0, -1.0, 2.0),
+	glm::vec3(-2.0, -1.0, -2.0),
+	glm::vec3(-2.0, -1.0, -2.0),
+	glm::vec3(2.0, -1.0, 2.0),
+	glm::vec3(2.0, -1.0, -2.0),
+	glm::vec3(-2.0, -1.0, -2.0),
+	glm::vec3(2.0, -1.0, -2.0),
+	glm::vec3(-2.0, 1.0, -2.0),
+	glm::vec3(-2.0, 1.0, -2.0),
+	glm::vec3(2.0, -1.0, -2.0),
+	glm::vec3(2.0, 1.0, -2.0)
   }; 
 
   // VBO amb la normal de cada vèrtex
@@ -154,9 +150,9 @@ void MyGLWidget::createBuffers ()
 
   // Definim el material del terra
   glm::vec3 amb(0.2,0,0.2);
-  glm::vec3 diff(0.0,0,1.0);
-  glm::vec3 spec(1,0,1);
-  float shin = 200;
+  glm::vec3 diff(0.8,0,0.8);
+  glm::vec3 spec(0,0,0);
+  float shin = 100;
 
   // Fem que aquest material afecti a tots els vèrtexs per igual
   glm::vec3 matambterra[12] = {
@@ -263,9 +259,6 @@ void MyGLWidget::carregaShaders()
   transLoc = glGetUniformLocation (program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
-  colFocusLoc = glGetUniformLocation (program->programId(), "colFocus");
-  llumAmbientLoc = glGetUniformLocation (program->programId(), "llumAmbient");
-  posFocusSCOLoc = glGetUniformLocation (program->programId(), "posFocusSCO");
 }
 
 void MyGLWidget::modelTransformPatricio ()
@@ -291,7 +284,6 @@ void MyGLWidget::projectTransform ()
   else
     Proj = glm::ortho(-radiEsc, radiEsc, -radiEsc, radiEsc, radiEsc, 3.0f*radiEsc);
 
-  //posFocusSCO = Proj * posFocusSCO;
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
 
@@ -301,9 +293,6 @@ void MyGLWidget::viewTransform ()
   View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
 
-  //posFocusSCO = View * posFocusSCO;
-
-  glUniform4fv(posFocusSCOLoc, 1, &posFocusSCO[0]);
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -333,15 +322,6 @@ void MyGLWidget::calculaCapsaModel ()
   centrePatr[0] = (minx+maxx)/2.0; centrePatr[1] = (miny+maxy)/2.0; centrePatr[2] = (minz+maxz)/2.0;
 }
 
-void MyGLWidget::lightUniforms() {
-    glm::vec3 colFocus = glm::vec3(0.8,0.8,0.8);
-    glUniform3fv(colFocusLoc, 1, &colFocus[0]);
-
-    glm::vec3 llumAmbient = glm::vec3(0.2,0.2,0.2);
-    glUniform3fv(llumAmbientLoc, 1, &llumAmbient[0]);
-
-}
-
 void MyGLWidget::keyPressEvent(QKeyEvent* event) 
 {
   makeCurrent();
@@ -349,17 +329,6 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_O: { // canvia òptica entre perspectiva i axonomètrica
       perspectiva = !perspectiva;
       projectTransform ();
-      viewTransform();
-      break;
-    }
-    case Qt::Key_K: { //MOU FOCUS -x
-      posFocus.x -= 0.1;
-      viewTransform();
-      break;
-    }
-    case Qt::Key_L: {  //MOU FOCUS +x
-      posFocus.x += 0.1;
-      viewTransform();
       break;
     }
     default: event->ignore(); break;
