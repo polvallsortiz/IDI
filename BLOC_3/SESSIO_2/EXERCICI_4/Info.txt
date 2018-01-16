@@ -1,0 +1,5 @@
+//Resum Exercici
+1 - Pintem dos patricios utilitzant el mateix VAO diferents modelTransforms();
+2 - Generem una segona modelTransform per al segon patricio.
+3 - Ampliació del calculaCapsaModel() guarda la mida del patricio.
+4 - Generalització del calculaCapsaModel() guardant dades passades per parametre.

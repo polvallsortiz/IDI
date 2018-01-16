@@ -43,12 +43,16 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void viewTransform ();
     void modelTransformTerra ();
     void modelTransformPatricio ();
-    void calculaCapsaModel ();
+    void modelTransformPatricio2();
+    void modelTransformCow();
+    void calculaCapsaModel (Model& m, glm::vec3& centre, glm::vec3& mida, float& scale);
     void lightUniforms();
 
     // VAO i VBO names
     GLuint VAO_Patr, VBO_PatrPos, VBO_PatrNorm, VBO_PatrMatamb, VBO_PatrMatdiff, VBO_PatrMatspec, VBO_PatrMatshin;
+    GLuint VAO_Cow, VBO_CowPos, VBO_CowNorm, VBO_CowMatamb, VBO_CowMatdiff, VBO_CowMatspec, VBO_CowMatshin;
     GLuint VAO_Terra, VBO_TerraPos, VBO_TerraNorm, VBO_TerraMatamb, VBO_TerraMatdiff, VBO_TerraMatspec, VBO_TerraMatshin;
+
     // Program
     QOpenGLShaderProgram *program;
     // uniform locations
@@ -57,10 +61,11 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
 
     // model
-    Model patr;
+    Model patr,cow;
     // paràmetres calculats a partir de la capsa contenidora del model
-    glm::vec3 centrePatr;
-    float escala;
+    glm::vec3 centrePatr,centreCow;
+    glm::vec3 midaPatr,midaCow; //CONTÉ A [0] ALÇADA, [1] AMPLADA, [2] NULL
+    float escala,escalacow;
     // radi de l'escena
     float radiEsc;
 

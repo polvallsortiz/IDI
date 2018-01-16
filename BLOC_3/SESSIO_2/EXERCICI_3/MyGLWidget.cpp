@@ -58,6 +58,10 @@ void MyGLWidget::paintGL ()
 
   // Pintem l'escena
   glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
+
+  modelTransformPatricio2();
+
+  glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
   
   glBindVertexArray(0);
 }
@@ -73,7 +77,8 @@ void MyGLWidget::createBuffers ()
   patr.load("/home/polvallsortiz/IDI/models/Patricio.obj");
 
   // Calculem la capsa contenidora del model
-  calculaCapsaModel ();
+  copia.load("/home/polvallsortiz/IDI/models/Patricio.obj");
+  calculaCapsaModel (copia,centrePatr,midaPatr);
   
   // Creació del Vertex Array Object del Patricio
   glGenVertexArrays(1, &VAO_Patr);
@@ -286,6 +291,16 @@ void MyGLWidget::modelTransformTerra ()
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
+void MyGLWidget::modelTransformPatricio2() {
+    glm::mat4 TG(1.f);  // Matriu de transformació
+    TG = glm::scale(TG, glm::vec3(escala, escala, escala));
+    glm::vec3 centrePatr2 = centrePatr;
+    centrePatr2[1] -= midaPatr[0];
+    TG = glm::translate(TG, -centrePatr2);
+
+    glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
 void MyGLWidget::projectTransform ()
 {
   glm::mat4 Proj;  // Matriu de projecció
@@ -313,30 +328,33 @@ void MyGLWidget::viewTransform ()
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
-void MyGLWidget::calculaCapsaModel ()
+void MyGLWidget::calculaCapsaModel (Model m, glm::vec3& centre, glm::vec3& mida)
 {
   // Càlcul capsa contenidora i valors transformacions inicials
   float minx, miny, minz, maxx, maxy, maxz;
   minx = maxx = patr.vertices()[0];
   miny = maxy = patr.vertices()[1];
   minz = maxz = patr.vertices()[2];
-  for (unsigned int i = 3; i < patr.vertices().size(); i+=3)
+  for (unsigned int i = 3; i < m.vertices().size(); i+=3)
   {
-    if (patr.vertices()[i+0] < minx)
-      minx = patr.vertices()[i+0];
-    if (patr.vertices()[i+0] > maxx)
-      maxx = patr.vertices()[i+0];
-    if (patr.vertices()[i+1] < miny)
-      miny = patr.vertices()[i+1];
-    if (patr.vertices()[i+1] > maxy)
-      maxy = patr.vertices()[i+1];
-    if (patr.vertices()[i+2] < minz)
-      minz = patr.vertices()[i+2];
-    if (patr.vertices()[i+2] > maxz)
-      maxz = patr.vertices()[i+2];
+    if (m.vertices()[i+0] < minx)
+      minx = m.vertices()[i+0];
+    if (m.vertices()[i+0] > maxx)
+      maxx = m.vertices()[i+0];
+    if (m.vertices()[i+1] < miny)
+      miny = m.vertices()[i+1];
+    if (m.vertices()[i+1] > maxy)
+      maxy = m.vertices()[i+1];
+    if (m.vertices()[i+2] < minz)
+      minz = m.vertices()[i+2];
+    if (m.vertices()[i+2] > maxz)
+      maxz = m.vertices()[i+2];
   }
   escala = 2.0/(maxy-miny);
-  centrePatr[0] = (minx+maxx)/2.0; centrePatr[1] = (miny+maxy)/2.0; centrePatr[2] = (minz+maxz)/2.0;
+  centre[0] = (minx+maxx)/2.0; centre[1] = (miny+maxy)/2.0; centre[2] = (minz+maxz)/2.0;
+  mida[0] = (maxy - miny);
+  mida[1] = (maxx - minx);
+  mida[2] = 0;
 }
 
 void MyGLWidget::lightUniforms() {

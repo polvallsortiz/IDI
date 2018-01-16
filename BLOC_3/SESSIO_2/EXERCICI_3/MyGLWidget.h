@@ -5,6 +5,7 @@
 #include <QOpenGLShaderProgram>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -33,6 +34,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     virtual void mousePressEvent (QMouseEvent *event);
     virtual void mouseReleaseEvent (QMouseEvent *event);
     virtual void mouseMoveEvent (QMouseEvent *event);
+    virtual void wheelEvent(QWheelEvent* event);
 
   private:
     void createBuffers ();
@@ -41,12 +43,14 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void viewTransform ();
     void modelTransformTerra ();
     void modelTransformPatricio ();
-    void calculaCapsaModel ();
+    void modelTransformPatricio2();
+    void calculaCapsaModel (Model m, glm::vec3& centre, glm::vec3& mida);
     void lightUniforms();
 
     // VAO i VBO names
     GLuint VAO_Patr, VBO_PatrPos, VBO_PatrNorm, VBO_PatrMatamb, VBO_PatrMatdiff, VBO_PatrMatspec, VBO_PatrMatshin;
     GLuint VAO_Terra, VBO_TerraPos, VBO_TerraNorm, VBO_TerraMatamb, VBO_TerraMatdiff, VBO_TerraMatspec, VBO_TerraMatshin;
+
     // Program
     QOpenGLShaderProgram *program;
     // uniform locations
@@ -55,9 +59,10 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
 
     // model
-    Model patr;
+    Model patr,copia;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr;
+    glm::vec3 midaPatr; //CONTÉ A [0] ALÇADA, [1] AMPLADA, [2] NULL
     float escala;
     // radi de l'escena
     float radiEsc;
@@ -65,8 +70,9 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     typedef  enum {NONE, ROTATE} InteractiveAction;
     InteractiveAction DoingInteractive;
     int xClick, yClick;
-    float angleY;
+    float angleY,angleX; //ANGLES PER A POSICIÓ CAMERA EULER
     bool perspectiva;
+    float fov;
 
     //paràmetres per al focus de llum
     glm::vec3 colFocus,llumAmbient,posFocus;
