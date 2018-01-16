@@ -5,7 +5,6 @@
 #include <QOpenGLShaderProgram>
 #include <QKeyEvent>
 #include <QMouseEvent>
-#include <QWheelEvent>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -34,7 +33,6 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     virtual void mousePressEvent (QMouseEvent *event);
     virtual void mouseReleaseEvent (QMouseEvent *event);
     virtual void mouseMoveEvent (QMouseEvent *event);
-    virtual void wheelEvent(QWheelEvent* event);
 
   private:
     void createBuffers ();
@@ -67,9 +65,8 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     typedef  enum {NONE, ROTATE} InteractiveAction;
     InteractiveAction DoingInteractive;
     int xClick, yClick;
-    float angleY,angleX; //ANGLES PER A POSICIÓ CAMERA EULER
+    float angleY;
     bool perspectiva;
-    float fov;
 
     //paràmetres per al focus de llum
     glm::vec3 colFocus,llumAmbient,posFocus;

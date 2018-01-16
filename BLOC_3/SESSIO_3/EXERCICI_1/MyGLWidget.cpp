@@ -1,14 +1,12 @@
 #include "MyGLWidget.h"
 
 #include <iostream>
-using namespace std;
 
 MyGLWidget::MyGLWidget (QWidget* parent) : QOpenGLWidget(parent)
 {
   setFocusPolicy(Qt::StrongFocus);  // per rebre events de teclat
   xClick = yClick = 0;
   angleY = 0.0;
-  angleX = 0.0;
   perspectiva = true;
   DoingInteractive = NONE;
   radiEsc = sqrt(3);
@@ -29,8 +27,6 @@ void MyGLWidget::initializeGL ()
   glEnable(GL_DEPTH_TEST);
   posFocus = glm::vec3(0,0,0); //SCO
   posFocusSCO = glm::vec4(posFocus,1.0);
-  glUniform4fv(posFocusSCOLoc, 1, &posFocusSCO[0]);
-  fov = float(M_PI/3.0);
   carregaShaders();
   createBuffers();
   lightUniforms();
@@ -290,8 +286,7 @@ void MyGLWidget::projectTransform ()
 {
   glm::mat4 Proj;  // Matriu de projecció
   if (perspectiva)
-      //glm::perspective (FOV en radians, ra window, znear, zfar)
-      Proj = glm::perspective(fov, 1.0f, radiEsc, 3.0f*radiEsc);
+    Proj = glm::perspective(float(M_PI/3.0), 1.0f, radiEsc, 3.0f*radiEsc);
   else
     Proj = glm::ortho(-radiEsc, radiEsc, -radiEsc, radiEsc, radiEsc, 3.0f*radiEsc);
 
@@ -301,11 +296,9 @@ void MyGLWidget::projectTransform ()
 
 void MyGLWidget::viewTransform ()
 {
-  glm::mat4 View;  // Matriu de posició i orientació AMB ANGLES EULER
+  glm::mat4 View;  // Matriu de posició i orientació
   View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
-  View = glm::rotate(View, -angleX, glm::vec3(1, 0, 0));
-
 
   //posFocusSCO = View * posFocusSCO;
 
@@ -359,12 +352,12 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
       break;
     }
     case Qt::Key_K: { //MOU FOCUS -x
-      posFocusSCO.x -= 0.1; //ACTUALMENT MOVEM DESDE EL OBSERVADOR
+      posFocus.x -= 0.1;
       viewTransform();
       break;
     }
     case Qt::Key_L: {  //MOU FOCUS +x
-      posFocusSCO.x += 0.1; //ACTUALMENT MOVEM DESDE EL OBSERVADOR
+      posFocus.x += 0.1;
       viewTransform();
       break;
     }
@@ -398,7 +391,6 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   {
     // Fem la rotació
     angleY += (e->x() - xClick) * M_PI / 180.0;
-    angleX += (e->y() - yClick) * M_PI / 180.0;
     viewTransform ();
   }
 
@@ -407,19 +399,5 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
 
   update ();
 }
-
-void MyGLWidget::wheelEvent(QWheelEvent* event) {
-    makeCurrent();
-    if(event->delta() > 0) { //ZOOM IN
-        fov -= 0.1;
-    }
-    else {  //ZOOM OUT
-        fov += 0.1;
-    }
-    update();
-    viewTransform();
-    projectTransform();
-}
-
 
 
